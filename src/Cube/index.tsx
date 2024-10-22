@@ -19,31 +19,22 @@ function Box() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentFace((prevFace) => (prevFace + 1) % 6);
-    }, 1000);
+    }, 2000);
     return () => clearInterval(interval);
   }, []);
 
+  const positions = [
+    { x: 0, y: 0, z: 0 },
+    { x: 0, y: Math.PI / 2, z: 0 },
+    { x: 0, y: Math.PI / 2, z: 0 },
+    { x: 0, y: -Math.PI / 2, z: 0 },
+    { x: -Math.PI / 2, y: 0, z: 0 },
+    { x: Math.PI / 2, y: 0, z: 0 },
+  ];
+
   useEffect(() => {
-    switch (currentFace) {
-      case 0:
-        targetRotation.current.set(0, 0, 0);
-        break; // Front
-      case 1:
-        targetRotation.current.set(0, Math.PI / 2, 0);
-        break; // Right
-      case 2:
-        targetRotation.current.set(0, Math.PI, 0);
-        break; // Back
-      case 3:
-        targetRotation.current.set(0, -Math.PI / 2, 0);
-        break; // Left
-      case 4:
-        targetRotation.current.set(-Math.PI / 2, 0, 0);
-        break; // Top
-      case 5:
-        targetRotation.current.set(Math.PI / 2, 0, 0);
-        break; // Bottom
-    }
+    const { x, y, z } = positions[currentFace];
+    targetRotation.current.set(x, y, z);
   }, [currentFace]);
 
   useFrame(() => {
