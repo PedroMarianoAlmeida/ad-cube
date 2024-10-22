@@ -1,15 +1,15 @@
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { useRef, useState, useEffect } from "react";
 import * as THREE from "three";
 
-const colors = [
-  "#ff0000", // red
-  "#00ff00", // green
-  "#0000ff", // blue
-  "#ffff00", // yellow
-  "#ff00ff", // magenta
-  "#00ffff", // cyan
-];
+import ad1 from "./../assets/ads/ad1.webp";
+import ad2 from "./../assets/ads/ad2.webp";
+import ad3 from "./../assets/ads/ad3.webp";
+import ad4 from "./../assets/ads/ad4.webp";
+import ad5 from "./../assets/ads/ad5.webp";
+import ad6 from "./../assets/ads/ad6.webp";
+
+const images = [ad1, ad2, ad3, ad4, ad5, ad6];
 
 function Box() {
   const meshRef = useRef<THREE.Mesh>(null!);
@@ -46,7 +46,7 @@ function Box() {
     }
   }, [currentFace]);
 
-  useFrame((state, delta) => {
+  useFrame(() => {
     meshRef.current.rotation.x = THREE.MathUtils.lerp(
       meshRef.current.rotation.x,
       targetRotation.current.x,
@@ -63,14 +63,17 @@ function Box() {
       0.1
     );
   });
+
+  const textures = useLoader(THREE.TextureLoader, images);
+
   return (
     <mesh ref={meshRef}>
       <boxGeometry args={[2, 2, 2]} />
-      {colors.map((color, index) => (
+      {textures.map((texture, index) => (
         <meshStandardMaterial
           key={index}
           attach={`material-${index}`}
-          color={color}
+          map={texture}
         />
       ))}
     </mesh>
@@ -79,7 +82,7 @@ function Box() {
 
 const Cube = () => {
   return (
-    <Canvas>
+    <Canvas style={{ height: "400px" }}>
       <ambientLight intensity={Math.PI / 2} />
       <spotLight
         position={[10, 10, 10]}
