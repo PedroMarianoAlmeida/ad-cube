@@ -1,26 +1,78 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import React, { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import * as THREE from "three";
 
-function Box(props) {
-  // This reference gives us direct access to the THREE.Mesh object
-  const ref = useRef();
-  // Hold state for hovered and clicked events
-  const [hovered, hover] = useState(false);
-  const [clicked, click] = useState(false);
-  // Subscribe this component to the render-loop, rotate the mesh every frame
-  useFrame((state, delta) => (ref.current.rotation.x += delta));
-  // Return the view, these are regular Threejs elements expressed in JSX
+const colors = [
+  "#ff0000", // red
+  "#00ff00", // green
+  "#0000ff", // blue
+  "#ffff00", // yellow
+  "#ff00ff", // magenta
+  "#00ffff", // cyan
+];
+
+function Box() {
+  const meshRef = useRef<THREE.Mesh>(null!);
+  const [currentFace, setCurrentFace] = useState(0);
+  const targetRotation = useRef(new THREE.Euler());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentFace((prevFace) => (prevFace + 1) % 6);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    switch (currentFace) {
+      case 0:
+        targetRotation.current.set(0, 0, 0);
+        break; // Front
+      case 1:
+        targetRotation.current.set(0, Math.PI / 2, 0);
+        break; // Right
+      case 2:
+        targetRotation.current.set(0, Math.PI, 0);
+        break; // Back
+      case 3:
+        targetRotation.current.set(0, -Math.PI / 2, 0);
+        break; // Left
+      case 4:
+        targetRotation.current.set(-Math.PI / 2, 0, 0);
+        break; // Top
+      case 5:
+        targetRotation.current.set(Math.PI / 2, 0, 0);
+        break; // Bottom
+    }
+  }, [currentFace]);
+
+  useFrame((state, delta) => {
+    meshRef.current.rotation.x = THREE.MathUtils.lerp(
+      meshRef.current.rotation.x,
+      targetRotation.current.x,
+      0.1
+    );
+    meshRef.current.rotation.y = THREE.MathUtils.lerp(
+      meshRef.current.rotation.y,
+      targetRotation.current.y,
+      0.1
+    );
+    meshRef.current.rotation.z = THREE.MathUtils.lerp(
+      meshRef.current.rotation.z,
+      targetRotation.current.z,
+      0.1
+    );
+  });
   return (
-    <mesh
-      {...props}
-      ref={ref}
-      scale={clicked ? 1.5 : 1}
-      onClick={(event) => click(!clicked)}
-      onPointerOver={(event) => hover(true)}
-      onPointerOut={(event) => hover(false)}
-    >
-      <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color={hovered ? "hotpink" : "orange"} />
+    <mesh ref={meshRef}>
+      <boxGeometry args={[2, 2, 2]} />
+      {colors.map((color, index) => (
+        <meshStandardMaterial
+          key={index}
+          attach={`material-${index}`}
+          color={color}
+        />
+      ))}
     </mesh>
   );
 }
@@ -37,8 +89,7 @@ const Cube = () => {
         intensity={Math.PI}
       />
       <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
-      <Box position={[-1.2, 0, 0]} />
-      <Box position={[1.2, 0, 0]} />
+      <Box />
     </Canvas>
   );
 };
