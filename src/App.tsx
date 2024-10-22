@@ -2,13 +2,12 @@ import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
+import Cube from "./Cube";
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
     <div>
-      <h1>Pedro Ad-Cube Pet Project</h1>
+      <Cube />
     </div>
   );
 }
